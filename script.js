@@ -130,24 +130,31 @@ function initAdmin() {
 
     document.getElementById("saveResultsBtn").onclick = () => {
     const nr = currentSpielGlobal;
-    const resA = document.getElementById("resA1").value + ":" + document.getElementById("resA2").value;
-    const resB = document.getElementById("resB1").value + ":" + document.getElementById("resB2").value;
+    const resA = (document.getElementById("resA1").value || "0") + ":" + (document.getElementById("resA2").value || "0");
+    const resB = (document.getElementById("resB1").value || "0") + ":" + (document.getElementById("resB2").value || "0");
 
     if (nr > 0) {
         // 1. Ergebnisse speichern
-        set(ref(db, "ergebnisse/" + nr), {
-            a: resA,
-            b: resB
-        });
+        set(ref(db, "ergebnisse/" + nr), { a: resA, b: resB });
 
         // 2. Zum nächsten Spiel springen
         set(ref(db, "aktuellesSpiel"), nr + 1);
         
-        // Felder leeren
+        // 3. Felder leeren
         document.getElementById("resA1").value = "";
         document.getElementById("resA2").value = "";
         document.getElementById("resB1").value = "";
         document.getElementById("resB2").value = "";
+
+        // 4. Admin Menü schließen (Overlay ausblenden)
+        document.getElementById("adminOverlay").style.display = "none";
+    }
+};
+document.getElementById("resetResultsBtn").onclick = () => {
+    if (confirm("Möchtest du wirklich ALLE Ergebnisse löschen? Dies kann nicht rückgängig gemacht werden.")) {
+        set(ref(db, "ergebnisse"), null).then(() => {
+            alert("Ergebnisse wurden zurückgesetzt.");
+        });
     }
 };
 }
@@ -199,32 +206,31 @@ function updateSideGames(current) {
 }
 
 function renderPast(past, current) {
-    const wrapper = document.getElementById("pastWrapper");
     const container = document.getElementById("pastGames");
-    const moreBtn = document.getElementById("pastMoreBtn");
-    if (past.length === 0) { wrapper.style.display = "none"; return; }
-    wrapper.style.display = "block";
+    const btn = document.getElementById("pastMoreBtn");
+    
     container.innerHTML = "";
-    past.slice(-pastVisible).reverse().forEach(nr => { // .reverse() damit das aktuellste oben steht
-    const div = document.createElement("div");
-    div.className = "game-line";
-    
-    // Prüfen ob Ergebnisse vorliegen
-    let ergHTML = "";
-    if (alleErgebnisse[nr]) {
-        ergHTML = `<div class="result-line">Ergebnis: ${alleErgebnisse[nr].a} | ${alleErgebnisse[nr].b}</div>`;
-    }
+    // Wir zeigen die letzten X Spiele in aufsteigender Reihenfolge (höchste Nr unten)
+    const slice = past.slice(-pastVisible); 
 
-    div.innerHTML = `Spiel ${nr}<br>${spiele[nr]} ${ergHTML}`;
-    container.appendChild(div);
-});
-    
-    moreBtn.style.display = pastVisible < past.length ? "inline-block" : "none";
-    moreBtn.onclick = () => { pastVisible += 4; updateSideGames(current); };
+    slice.forEach(nr => {
+        const div = document.createElement("div");
+        div.className = "game-line";
+        
+        let displayContent = spiele[nr];
 
-    let lessBtn = document.getElementById("pastLessBtn") || createLessBtn("pastLessBtn", moreBtn);
-    lessBtn.style.display = pastVisible > 4 ? "inline-block" : "none";
-    lessBtn.onclick = () => { pastVisible = 2; updateSideGames(current); scrollToLive(); };
+        // Wenn Ergebnisse da sind, splitten wir den String beim <br> und fügen sie ein
+        if (alleErgebnisse[nr]) {
+            const lines = spiele[nr].split("<br>");
+            const res = alleErgebnisse[nr];
+            displayContent = `${lines[0]} <span class="game-res">${res.a}</span><br>${lines[1]} <span class="game-res">${res.b}</span>`;
+        }
+
+        div.innerHTML = `Spiel ${nr}<br>${displayContent}`;
+        container.appendChild(div);
+    });
+
+    btn.style.display = past.length > pastVisible ? "inline-block" : "none";
 }
 
 function renderFuture(future, current) {

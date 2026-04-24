@@ -354,3 +354,18 @@ h2.subtitle {
     text-align: center;
     font-weight: bold;
 }
+
+/* Styling für das Ergebnis direkt in der Zeile */
+.game-res {
+    font-weight: 800;
+    color: #3414fc; /* Dein lila/blau */
+    margin-left: 10px;
+    background: rgba(52, 20, 252, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+/* Der Reset Button im Admin Bereich */
+#resetResultsBtn:hover {
+    background: #a71d2a !important;
+}
