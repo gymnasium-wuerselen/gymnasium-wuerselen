@@ -206,12 +206,22 @@ function updateSideGames(current) {
 }
 
 function renderPast(past, current) {
+    const wrapper = document.getElementById("pastWrapper");
     const container = document.getElementById("pastGames");
-    const btn = document.getElementById("pastMoreBtn");
-    
+    const moreBtn = document.getElementById("pastMoreBtn");
+
+    // 1. Wenn keine vergangenen Spiele → ausblenden
+    if (past.length === 0) {
+        wrapper.style.display = "none";
+        return;
+    } else {
+        wrapper.style.display = "block";
+    }
+
     container.innerHTML = "";
-    // Wir zeigen die letzten X Spiele in aufsteigender Reihenfolge (höchste Nr unten)
-    const slice = past.slice(-pastVisible); 
+
+    // 2. Die letzten X Spiele holen (höchste Nummer bleibt unten)
+    const slice = past.slice(-pastVisible);
 
     slice.forEach(nr => {
         const div = document.createElement("div");
@@ -219,10 +229,11 @@ function renderPast(past, current) {
         
         let displayContent = spiele[nr];
 
-        // Wenn Ergebnisse da sind, splitten wir den String beim <br> und fügen sie ein
-        if (alleErgebnisse[nr]) {
+        // 3. Ergebnisse integrieren (falls vorhanden)
+        if (typeof alleErgebnisse !== 'undefined' && alleErgebnisse[nr]) {
             const lines = spiele[nr].split("<br>");
             const res = alleErgebnisse[nr];
+            // Format: Team A - Team B [Ergebnis]
             displayContent = `${lines[0]} <span class="game-res">${res.a}</span><br>${lines[1]} <span class="game-res">${res.b}</span>`;
         }
 
@@ -230,7 +241,46 @@ function renderPast(past, current) {
         container.appendChild(div);
     });
 
-    btn.style.display = past.length > pastVisible ? "inline-block" : "none";
+    // 4. "Mehr anzeigen" Logik (wie in renderFuture)
+    if (pastVisible < past.length) {
+        moreBtn.style.display = "inline-block";
+    } else {
+        moreBtn.style.display = "none";
+    }
+
+    // 5. "Weniger anzeigen" Logik (dynamisch wie in renderFuture)
+    let lessBtn = document.getElementById("pastLessBtn");
+    if (!lessBtn) {
+        lessBtn = document.createElement("button");
+        lessBtn.id = "pastLessBtn";
+        lessBtn.className = "show-more";
+        lessBtn.textContent = "Weniger anzeigen";
+        // Button nach dem "Mehr anzeigen" Button einfügen
+        moreBtn.parentNode.insertBefore(lessBtn, moreBtn.nextSibling);
+    }
+
+    // Sichtbarkeit des Weniger-Buttons (ab mehr als 3 Spielen)
+    if (pastVisible > 3) {
+        lessBtn.style.display = "inline-block";
+    } else {
+        lessBtn.style.display = "none";
+    }
+
+    // 6. Klick-Events (direkt in der Funktion definiert)
+    moreBtn.onclick = () => {
+        pastVisible += 4;
+        updateSideGames(current);
+        // Optional: Kleiner Scroll-Effekt nach unten
+        setTimeout(() => {
+            window.scrollBy({ top: 150, behavior: 'smooth' });
+        }, 50);
+    };
+
+    lessBtn.onclick = () => {
+        pastVisible = 3; // Zurück auf Standardwert
+        updateSideGames(current);
+        scrollToLive(); // Nutzt deine vorhandene Funktion
+    };
 }
 
 function renderFuture(future, current) {
