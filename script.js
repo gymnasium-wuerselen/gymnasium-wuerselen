@@ -201,9 +201,36 @@ onValue(ref(db, "aktuellesSpiel"), (snapshot) => {
 function updateLiveSpiel(nr) {
     const box = document.getElementById("liveText");
     const container = document.getElementById("liveSpiel");
-    if (!nr || nr === 0) { container.style.display = "none"; return; }
+
+    // 1. Wenn kein Spiel aktiv ist
+    if (!nr || nr === 0) { 
+        container.style.display = "none"; 
+        return; 
+    }
+
     container.style.display = "block";
-    box.innerHTML = spiele[nr] ? "🔴 LIVE:<br>" + spiele[nr] : "Aktuelles Spiel: Spiel " + nr;
+
+    // 2. Inhalt setzen: Wir ersetzen das rote Emoji durch den animierten Punkt
+    if (spiele[nr]) {
+        box.innerHTML = `
+            <div style="font-size: 14px; font-weight: bold; margin-bottom: 8px; letter-spacing: 2px; display: flex; align-items: center; justify-content: center;">
+                <span class="live-indicator"></span> LIVE
+            </div>
+            <div style="font-size: 20px; font-weight: bold; line-height: 1.4;">
+                ${spiele[nr]}
+            </div>
+        `;
+    } else {
+        // Fallback-Text
+        box.innerHTML = `
+            <div style="font-size: 14px; font-weight: bold; margin-bottom: 8px; letter-spacing: 2px; display: flex; align-items: center; justify-content: center;">
+                <span class="live-indicator"></span> LIVE
+            </div>
+            <div style="font-size: 20px; font-weight: bold;">
+                Aktuelles Spiel: Spiel ${nr}
+            </div>
+        `;
+    }
 }
 
 function updateSideGames(current) {

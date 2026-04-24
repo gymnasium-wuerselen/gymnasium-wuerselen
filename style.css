@@ -369,3 +369,59 @@ h2.subtitle {
 #resetResultsBtn:hover {
     background: #a71d2a !important;
 }
+
+/* Die optimierte Live-Box */
+.live-box {
+    background: #3414fc;
+    color: white;
+    padding: 16px;
+    text-align: center;
+    font-family: 'FranklinLight', Arial, sans-serif;
+    margin: 15px auto;
+    border-radius: 12px;
+    position: relative; /* Wichtig für die Positionierung des Effekts */
+    overflow: hidden;   /* Schneidet den Lichteffekt am Rand ab */
+    box-shadow: 0 4px 15px rgba(52, 20, 252, 0.3);
+}
+
+/* Der wandernde Lichtschweif am Rand */
+.live-box::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        transparent 20%
+    );
+    animation: rotate-border 4s linear infinite;
+    pointer-events: none;
+}
+
+/* Animation für den Lichtschweif */
+@keyframes rotate-border {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Der rote pulsierende Punkt */
+.live-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: #ff0044;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+    box-shadow: 0 0 8px #ff0044;
+    animation: pulse-dot 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse-dot {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+    100% { opacity: 1; transform: scale(1); }
+}
