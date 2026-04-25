@@ -370,38 +370,53 @@ h2.subtitle {
     background: #a71d2a !important;
 }
 
-/* Die optimierte Live-Box */
+/* Der Hauptcontainer */
 .live-box {
-    background: #3414fc;
-    color: white;
-    padding: 3px;
-    text-align: center;
-    font-family: 'FranklinLight', Arial, sans-serif;
+    position: relative;
     margin: 15px auto;
+    width: 95%;      /* Etwas schmaler als die volle Breite */
+    max-width: 600px;
     border-radius: 12px;
-    position: relative; /* Wichtig für die Positionierung des Effekts */
-    overflow: hidden;   /* Schneidet den Lichteffekt am Rand ab */
-    box-shadow: 0 4px 15px rgba(52, 20, 252, 0.3);
+    overflow: hidden;
+    background: #000; /* Schwarzer Untergrund für die Licht-Schiene */
+    z-index: 1;
 }
 
-/* Der wandernde Lichtschweif am Rand */
+/* Das rotierende Licht (Der Lichtstrahl) */
 .live-box::before {
     content: "";
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
+    top: -150%;
+    left: -150%;
+    width: 400%;
+    height: 400%;
     background: conic-gradient(
         transparent, 
-        rgba(255, 255, 255, 0.3), 
-        transparent 20%
+        rgba(255, 255, 255, 0.9), 
+        transparent 15%
     );
     animation: rotate-border 4s linear infinite;
-    pointer-events: none;
+    z-index: 0;
 }
 
-/* Animation für den Lichtschweif */
+/* Die innere blaue Box (Der Deckel) */
+.live-content-wrapper {
+    position: relative;
+    /* STEUERUNG DER LINIENDICKE: inset: 1px = Haardünn | 2px = Elegant */
+    inset: 1.5px; 
+    
+    /* STEUERUNG DER HÖHE: Kleineres Padding = schmalere Box */
+    padding: 10px 15px; 
+    
+    background: #3414fc;
+    border-radius: 11px;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
 @keyframes rotate-border {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
@@ -424,14 +439,4 @@ h2.subtitle {
     0% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.4; transform: scale(0.8); }
     100% { opacity: 1; transform: scale(1); }
-}
-
-
-/* Das Innere der Box (deckt das Licht in der Mitte ab) */
-.live-content-wrapper {
-    background: #3414fc; /* Dein Original-Blau */
-    border-radius: 12px;
-    padding: 20px;
-    position: relative;
-    z-index: 2;
 }
