@@ -370,47 +370,53 @@ h2.subtitle {
     background: #a71d2a !important;
 }
 
+/* Der Hauptcontainer */
 .live-box {
     position: relative;
-    width: 100%; /* Oder deine gewünschte Breite */
-    height: auto;
-    border-radius: 15px;
-    overflow: hidden;
     margin: 15px auto;
+    width: 95%;      /* Etwas schmaler als die volle Breite */
+    max-width: 600px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000; /* Schwarzer Untergrund für die Licht-Schiene */
     z-index: 1;
-    background: #1a1a1a; /* Dunkler Hintergrund für besseren Kontrast der Linie */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* Hier KEIN Padding benutzen, wir steuern es über die innere Box */
 }
 
+/* Das rotierende Licht (Der Lichtstrahl) */
 .live-box::before {
     content: "";
     position: absolute;
-    width: 150%;
-    height: 150%;
-    background: conic-gradient(transparent, #ffffff, transparent 30%);
+    top: -150%;
+    left: -150%;
+    width: 400%;
+    height: 400%;
+    background: conic-gradient(
+        transparent, 
+        rgba(255, 255, 255, 0.9), 
+        transparent 15%
+    );
     animation: rotate-border 4s linear infinite;
     z-index: 0;
 }
 
+/* Die innere blaue Box (Der Deckel) */
 .live-content-wrapper {
-    /* HIER STEUERST DU DIE LINIENDICKE: */
-    /* 100% minus 4px (2px links, 2px rechts) ergibt eine 2px dicke Linie */
-    width: calc(100% - 4px); 
-    margin: 2px; /* Entspricht der Linienstärke */
+    position: relative;
+    /* STEUERUNG DER LINIENDICKE: inset: 1px = Haardünn | 2px = Elegant */
+    inset: 1.5px; 
+    
+    /* STEUERUNG DER HÖHE: Kleineres Padding = schmalere Box */
+    padding: 10px 15px; 
     
     background: #3414fc;
-    border-radius: 13px;
-    padding: 16px; /* Der Abstand vom Text zum blauen Rand */
-    position: relative;
+    border-radius: 11px;
     z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
-
-
-/* Animation für den Lichtschweif */
 @keyframes rotate-border {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }

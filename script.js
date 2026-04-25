@@ -213,8 +213,8 @@ function updateLiveSpiel(nr) {
     // 2. Inhalt setzen mit pulsierendem Punkt und Profi-Layout
     if (spiele[nr]) {
         box.innerHTML = `
-            <div style="font-size: 14px; font-weight: bold; margin-bottom: 8px; letter-spacing: 2px; display: flex; align-items: center; justify-content: center;">
-                <span class="live-indicator"></span> LIVE
+            <div style="font-size: 11px; font-weight: bold; margin-bottom: 2px; letter-spacing: 2px; display: flex; align-items: center; justify-content: center; opacity: 0.9;">
+                <span class="live-indicator"></span> AKTUELLE SPIELE
             </div>
             <div style="font-size: 20px; font-weight: bold; line-height: 1.4;">
                 ${spiele[nr]}
@@ -224,7 +224,7 @@ function updateLiveSpiel(nr) {
         // Fallback-Text, falls für die Nummer kein Spiel im Objekt 'spiele' ist
         box.innerHTML = `
             <div style="font-size: 14px; font-weight: bold; margin-bottom: 8px; letter-spacing: 2px; display: flex; align-items: center; justify-content: center;">
-                <span class="live-indicator"></span> LIVE
+                <span class="live-indicator"></span> AKTUELLE SPIELE
             </div>
             <div style="font-size: 20px; font-weight: bold;">
                 Aktuelles Spiel: Spiel ${nr}
