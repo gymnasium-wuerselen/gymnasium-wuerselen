@@ -23,9 +23,22 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// --- GLOBALE VARIABLEN ---
-let spieleDaten = {}; // Hier speichern wir die Daten aus Firebase
+// SPIELE-LISTE AUS FIREBASE LADEN
+onValue(ref(db, "spiele"), (snapshot) => {
+    spieleDaten = snapshot.val() || {};
+    console.log("Spiele erfolgreich geladen:", spieleDaten);
+    
+    // Falls die Seite schon geladen ist, Anzeigen mit den neuen Daten aktualisieren
+    if (currentSpielGlobal > 0) {
+        updateLiveSpiel(currentSpielGlobal);
+        updateSideGames(currentSpielGlobal);
+    }
+});
+
+let spieleDaten = {}; // Hier speichern wir die Daten, die wir gleich aus Firebase laden
 let currentSpielGlobal = 0; // Hilfsvariable für den aktuellen Spielstand
+
+let currentSpielGlobal = 0;
 let alleErgebnisse = {}; // Hier speichern wir lokal alle Ergebnisse aus Firebase
 let pastVisible = 4;
 let futureVisible = 4;
@@ -38,42 +51,6 @@ window.addEventListener('load', () => {
     setLiveOffset();
     handleLiveResize();
 });
-
-// --- FIREBASE LISTENERS ---
-
-// 1. Spiele-Liste aus Firebase laden
-onValue(ref(db, "spiele"), (snapshot) => {
-    spieleDaten = snapshot.val() || {};
-    console.log("Spiele erfolgreich geladen:", spieleDaten);
-    
-    // Falls die Seite schon geladen ist, Anzeigen mit den neuen Daten aktualisieren
-    if (currentSpielGlobal > 0) {
-        updateLiveSpiel(currentSpielGlobal);
-        updateSideGames(currentSpielGlobal);
-    }
-});
-
-// 2. Aktuelles Spiel aus Firebase laden
-onValue(ref(db, "aktuellesSpiel"), (snapshot) => {
-    const nr = snapshot.val();
-    currentSpielGlobal = nr;
-    pastVisible = 2; // Zurücksetzen beim Spielwechsel
-    futureVisible = 2;
-    
-    if(document.getElementById("adminCurrentNr")) {
-        document.getElementById("adminCurrentNr").textContent = nr;
-    }
-    
-    updateLiveSpiel(nr);
-    updateSideGames(nr);
-});
-
-// 3. Ergebnisse aus Firebase laden
-onValue(ref(db, "ergebnisse"), (snapshot) => {
-    alleErgebnisse = snapshot.val() || {};
-    updateSideGames(currentSpielGlobal); // Liste neu zeichnen, wenn Ergebnisse kommen
-});
-
 
 // --- POPUP LOGIK ---
 function initPopup() {
@@ -167,32 +144,34 @@ function initAdmin() {
     adminButtons.appendChild(leerBtn);
 
     document.getElementById("saveResultsBtn").onclick = () => {
-        const nr = currentSpielGlobal;
-        const resA = (document.getElementById("resA1").value || "0") + ":" + (document.getElementById("resA2").value || "0");
-        const resB = (document.getElementById("resB1").value || "0") + ":" + (document.getElementById("resB2").value || "0");
+    const nr = currentSpielGlobal;
+    const resA = (document.getElementById("resA1").value || "0") + ":" + (document.getElementById("resA2").value || "0");
+    const resB = (document.getElementById("resB1").value || "0") + ":" + (document.getElementById("resB2").value || "0");
 
-        if (nr > 0) {
-            set(ref(db, "ergebnisse/" + nr), { a: resA, b: resB });
-            set(ref(db, "aktuellesSpiel"), nr + 1);
-            
-            document.getElementById("resA1").value = "";
-            document.getElementById("resA2").value = "";
-            document.getElementById("resB1").value = "";
-            document.getElementById("resB2").value = "";
+    if (nr > 0) {
+        // 1. Ergebnisse speichern
+        set(ref(db, "ergebnisse/" + nr), { a: resA, b: resB });
 
-            if(document.getElementById("adminOverlay")) {
-                document.getElementById("adminOverlay").style.display = "none";
-            }
-        }
-    };
-    
-    document.getElementById("resetResultsBtn").onclick = () => {
-        if (confirm("Möchtest du wirklich ALLE Ergebnisse löschen? Dies kann nicht rückgängig gemacht werden.")) {
-            set(ref(db, "ergebnisse"), null).then(() => {
-                alert("Ergebnisse wurden zurückgesetzt.");
-            });
-        }
-    };
+        // 2. Zum nächsten Spiel springen
+        set(ref(db, "aktuellesSpiel"), nr + 1);
+        
+        // 3. Felder leeren
+        document.getElementById("resA1").value = "";
+        document.getElementById("resA2").value = "";
+        document.getElementById("resB1").value = "";
+        document.getElementById("resB2").value = "";
+
+        // 4. Admin Menü schließen (Overlay ausblenden)
+        document.getElementById("adminOverlay").style.display = "none";
+    }
+};
+document.getElementById("resetResultsBtn").onclick = () => {
+    if (confirm("Möchtest du wirklich ALLE Ergebnisse löschen? Dies kann nicht rückgängig gemacht werden.")) {
+        set(ref(db, "ergebnisse"), null).then(() => {
+            alert("Ergebnisse wurden zurückgesetzt.");
+        });
+    }
+};
 }
 
 function setSpiel(nr) {
@@ -200,13 +179,38 @@ function setSpiel(nr) {
     document.getElementById("adminPanel").style.display = "none";
 }
 
-// --- UI UPDATE FUNKTIONEN ---
+// --- FIREBASE & LISTENERS ---
+onValue(ref(db, "aktuellesSpiel"), (snapshot) => {
+    const nr = snapshot.val();
+    currentSpielGlobal = nr;
+    pastVisible = 2;
+    futureVisible = 2;
+    updateLiveSpiel(nr);
+    updateSideGames(nr);
+});
+
+onValue(ref(db, "ergebnisse"), (snapshot) => {
+    alleErgebnisse = snapshot.val() || {};
+    updateSideGames(currentSpielGlobal); // Liste neu zeichnen, wenn Ergebnisse kommen
+});
+
+// Update der Anzeige im Admin Panel
+onValue(ref(db, "aktuellesSpiel"), (snapshot) => {
+    const nr = snapshot.val();
+    currentSpielGlobal = nr;
+    if(document.getElementById("adminCurrentNr")) {
+        document.getElementById("adminCurrentNr").textContent = nr;
+    }
+    updateLiveSpiel(nr);
+    updateSideGames(nr);
+});
 
 function updateLiveSpiel(nr) {
     const box = document.getElementById("liveText");
     const container = document.getElementById("liveSpiel");
-    currentSpielGlobal = nr;
+    currentSpielGlobal = nr; // Merken, welche Nummer gerade aktuell ist
 
+    // Wenn kein Spiel läuft oder die Daten noch nicht da sind
     if (!nr || nr === 0 || !spieleDaten[nr]) { 
         container.style.display = "none"; 
         return; 
@@ -215,6 +219,7 @@ function updateLiveSpiel(nr) {
     container.style.display = "block";
     const daten = spieleDaten[nr];
 
+    // Hier bauen wir das HTML für die Live-Box
     box.innerHTML = `
         <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; letter-spacing: 2px; display: flex; align-items: center; justify-content: center;">
             <span class="live-indicator"></span> AKTUELLE SPIELE
@@ -228,58 +233,54 @@ function updateLiveSpiel(nr) {
 
 function updateSideGames(current) {
     if (!current || current === 0) return;
-    // Der alte Fehler war hier versteckt. Jetzt übergeben wir einfach die Nummer sauber.
-    renderPast(current);
-    renderFuture(current);
+    const keys = Object.keys(spiele).map(Number);
+    renderPast(keys.filter(k => k < current), current);
+    renderFuture(keys.filter(k => k > current), current);
 }
 
 function renderPast(current) {
     const container = document.getElementById("pastGames");
     container.innerHTML = "";
     
+    // Wir filtern alle Spielnummern, die kleiner als die aktuelle sind
     const past = Object.keys(spieleDaten)
         .map(Number)
         .filter(nr => nr < current && nr > 0)
-        .sort((a, b) => b - a); 
+        .sort((a, b) => b - a); // Neueste beendete Spiele zuerst
 
     if (past.length === 0) {
-        const wrapper = document.getElementById("pastWrapper");
-        if(wrapper) wrapper.style.display = "none";
+        container.innerHTML = '<div class="game-line" style="opacity:0.5;">Noch keine Spiele beendet.</div>';
         return;
-    } else {
-        const wrapper = document.getElementById("pastWrapper");
-        if(wrapper) wrapper.style.display = "block";
     }
 
     past.slice(0, pastVisible).forEach(nr => {
         const daten = spieleDaten[nr] || { p1: "Spiel", p2: "Spiel" };
-        const res = alleErgebnisse[nr] || null;
+        const res = alleErgebnisse[nr] || { a: "-", b: "-" };
         
         const div = document.createElement("div");
         div.className = "game-line";
-        div.style.textAlign = "left"; 
+        div.style.textAlign = "left"; // Linksbündig für die Platz-Anzeige
         
-        let p1Ergebnis = res ? `<span class="game-res">${res.a}</span>` : "";
-        let p2Ergebnis = res ? `<span class="game-res">${res.b}</span>` : "";
-
         div.innerHTML = `
             <div style="font-size: 11px; opacity: 0.6; margin-bottom: 5px; font-family: Arial;">RUNDE ${nr}</div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                 <span><b style="width:65px; display:inline-block;">Platz 1:</b> ${daten.p1}</span>
-                ${p1Ergebnis}
+                <span class="game-res">${res.a}</span>
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span><b style="width:65px; display:inline-block;">Platz 2:</b> ${daten.p2}</span>
-                ${p2Ergebnis}
+                <span class="game-res">${res.b}</span>
             </div>
         `;
         container.appendChild(div);
     });
 
+    // Button-Logik (Mehr anzeigen)
     const moreBtn = document.getElementById("pastMoreBtn");
     moreBtn.style.display = past.length > pastVisible ? "inline-block" : "none";
     moreBtn.onclick = () => { pastVisible += 5; updateSideGames(current); };
 
+    // "Weniger anzeigen" Button falls nötig
     if (pastVisible > 5) {
         let lessBtn = document.getElementById("pastLessBtn") || createLessBtn("pastLessBtn", moreBtn, true);
         lessBtn.style.display = "inline-block";
@@ -291,19 +292,17 @@ function renderPast(current) {
 
 function renderFuture(current) {
     const container = document.getElementById("futureGames");
-    const wrapper = document.getElementById("futureWrapper");
     container.innerHTML = "";
     
+    // Wir filtern alle Spielnummern, die größer als die aktuelle sind
     const future = Object.keys(spieleDaten)
         .map(Number)
         .filter(nr => nr > current)
-        .sort((a, b) => a - b); 
+        .sort((a, b) => a - b); // Nächstes Spiel zuerst
 
     if (future.length === 0) {
-        if(wrapper) wrapper.style.display = "none";
+        container.innerHTML = '<div class="game-line" style="opacity:0.5;">Keine weiteren Spiele geplant.</div>';
         return;
-    } else {
-        if(wrapper) wrapper.style.display = "block";
     }
 
     future.slice(0, futureVisible).forEach(nr => {
@@ -320,10 +319,12 @@ function renderFuture(current) {
         container.appendChild(div);
     });
 
+    // Button-Logik
     const moreBtn = document.getElementById("futureMoreBtn");
     moreBtn.style.display = future.length > futureVisible ? "inline-block" : "none";
     moreBtn.onclick = () => { futureVisible += 5; updateSideGames(current); };
 
+    // "Weniger anzeigen" Button
     let lessBtn = document.getElementById("futureLessBtn");
     if (futureVisible > 5) {
         if (!lessBtn) lessBtn = createLessBtn("futureLessBtn", moreBtn);
@@ -355,18 +356,14 @@ function scrollToLive() {
 function setLiveOffset() {
     const countdown = document.getElementById("turnierCountdown");
     const live = document.getElementById("liveSpiel");
-    if (countdown && live) {
-        live.style.top = countdown.offsetHeight + "px";
-    }
+    live.style.top = countdown.offsetHeight + "px";
 }
 
 function handleLiveResize() {
     const live = document.getElementById("liveSpiel");
-    if(live) {
-        const isSticky = live.getBoundingClientRect().top <= parseInt(live.style.top || 0) + 1;
-        if (isSticky) live.classList.add("full-width");
-        else live.classList.remove("full-width");
-    }
+    const isSticky = live.getBoundingClientRect().top <= parseInt(live.style.top || 0) + 1;
+    if (isSticky) live.classList.add("full-width");
+    else live.classList.remove("full-width");
 }
 
 window.addEventListener("resize", setLiveOffset);
