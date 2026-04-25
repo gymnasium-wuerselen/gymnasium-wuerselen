@@ -370,36 +370,45 @@ h2.subtitle {
     background: #a71d2a !important;
 }
 
-/* Die optimierte Live-Box */
 .live-box {
-    background: #3414fc;
-    color: white;
-    padding: 1px;
-    text-align: center;
-    font-family: 'FranklinLight', Arial, sans-serif;
+    position: relative;
+    width: 100%; /* Oder deine gewünschte Breite */
+    height: auto;
+    border-radius: 15px;
+    overflow: hidden;
     margin: 15px auto;
-    border-radius: 12px;
-    position: relative; /* Wichtig für die Positionierung des Effekts */
-    overflow: hidden;   /* Schneidet den Lichteffekt am Rand ab */
-    box-shadow: 0 4px 15px rgba(52, 20, 252, 0.3);
+    z-index: 1;
+    background: #1a1a1a; /* Dunkler Hintergrund für besseren Kontrast der Linie */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* Hier KEIN Padding benutzen, wir steuern es über die innere Box */
 }
 
-/* Der wandernde Lichtschweif am Rand */
 .live-box::before {
     content: "";
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: conic-gradient(
-        transparent, 
-        rgba(255, 255, 255, 0.3), 
-        transparent 20%
-    );
+    width: 150%;
+    height: 150%;
+    background: conic-gradient(transparent, #ffffff, transparent 30%);
     animation: rotate-border 4s linear infinite;
-    pointer-events: none;
+    z-index: 0;
 }
+
+.live-content-wrapper {
+    /* HIER STEUERST DU DIE LINIENDICKE: */
+    /* 100% minus 4px (2px links, 2px rechts) ergibt eine 2px dicke Linie */
+    width: calc(100% - 4px); 
+    margin: 2px; /* Entspricht der Linienstärke */
+    
+    background: #3414fc;
+    border-radius: 13px;
+    padding: 16px; /* Der Abstand vom Text zum blauen Rand */
+    position: relative;
+    z-index: 2;
+}
+
+
 
 /* Animation für den Lichtschweif */
 @keyframes rotate-border {
@@ -424,14 +433,4 @@ h2.subtitle {
     0% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.4; transform: scale(0.8); }
     100% { opacity: 1; transform: scale(1); }
-}
-
-
-/* Das Innere der Box (deckt das Licht in der Mitte ab) */
-.live-content-wrapper {
-    background: #3414fc; /* Dein Original-Blau */
-    border-radius: 12px;
-    padding: 20px;
-    position: relative;
-    z-index: 2;
 }
