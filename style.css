@@ -437,21 +437,30 @@ h2.subtitle {
 }
 
 .game-row {
-    display: flex;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: auto auto auto;
+    justify-content: center; /* GANZE ZEILE zentriert */
     align-items: center;
-    gap: 10px;
+    column-gap: 10px;
     margin: 4px 0;
 }
 
 .platz {
     font-weight: bold;
-    min-width: 90px;
-    text-align: left !important;
+    text-align: left;
 }
 
 .teams {
     text-align: center;
+}
+
+.result {
+    text-align: right;
+    font-weight: bold;
+    color: #3414fc;
+    background: rgba(52, 20, 252, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
 }
 
 .notice {

@@ -216,27 +216,29 @@ function updateLiveSpiel(nr) {
     // 2. Inhalt setzen mit pulsierendem Punkt und Profi-Layout
     const game = spiele[nr.toString()];
 
-    if (game) {
-        box.innerHTML = `
-            <div style="font-size: 14px; font-weight: bold; margin-bottom: 2px; letter-spacing: 2px; display: flex; align-items: center; justify-content: center;">
-                <span class="live-indicator"></span> AKTUELLE SPIELE
+if (game) {
+    box.innerHTML = `
+        <div style="font-size: 14px; font-weight: bold; margin-bottom: 2px; letter-spacing: 2px; display: flex; align-items: center; justify-content: center;">
+            <span class="live-indicator"></span> AKTUELLE SPIELE
+        </div>
+
+        <div style="font-size: 20px; font-weight: bold; line-height: 1.6;">
+            
+            <div class="game-row">
+                <span class="platz">Platz 1:</span>
+                <span class="teams">${game.a}</span>
+                <span class="result"></span>
             </div>
 
-            <div style="font-size: 20px; font-weight: bold; line-height: 1.6;">
-                
-                <div class="game-row">
-                    <span class="platz">Platz 1:</span>
-                    <span class="teams">${game.a}</span>
-                </div>
-
-                <div class="game-row">
-                    <span class="platz">Platz 2:</span>
-                    <span class="teams">${game.b}</span>
-                </div>
-
+            <div class="game-row">
+                <span class="platz">Platz 2:</span>
+                <span class="teams">${game.b}</span>
+                <span class="result"></span>
             </div>
-        `;
-    } else {
+
+        </div>
+    `;
+} else {
             // Fallback-Text, falls für die Nummer kein Spiel im Objekt 'spiele' ist
             box.innerHTML = `
                 <div style="font-size: 14px; font-weight: bold; margin-bottom: 8px; letter-spacing: 2px; display: flex; align-items: center; justify-content: center;">
@@ -292,15 +294,20 @@ function renderPast(past, current) {
         // 3. Ergebnisse integrieren (falls vorhanden)
         if (alleErgebnisse[nr]) {
             const res = alleErgebnisse[nr];
+            const resA = res.a ? `<span class="result">${res.a}</span>` : "";
+            const resB = res.b ? `<span class="result">${res.b}</span>` : "";
 
             displayContent = `
             <div class="game-row">
                 <span class="platz">Platz 1:</span>
-                <span class="teams">${game.a} <span class="game-res">${res.a}</span></span>
+                <span class="teams">${game.a}</span>
+                ${resA}
             </div>
+
             <div class="game-row">
                 <span class="platz">Platz 2:</span>
-                <span class="teams">${game.b} <span class="game-res">${res.b}</span></span>
+                <span class="teams">${game.b}</span>
+                ${resB}
             </div>
             `;
         } else {
@@ -309,6 +316,7 @@ function renderPast(past, current) {
                 <span class="platz">Platz 1:</span>
                 <span class="teams">${game.a}</span>
             </div>
+
             <div class="game-row">
                 <span class="platz">Platz 2:</span>
                 <span class="teams">${game.b}</span>
@@ -381,14 +389,17 @@ function renderFuture(future, current) {
         div.className = "game-line";
         const game = spiele[nr];
         div.innerHTML = `
-            <div class="game-row">
-                <span class="platz">Platz 1:</span>
-                <span class="teams">${game.a}</span>
-            </div>
-            <div class="game-row">
-                <span class="platz">Platz 2:</span>
-                <span class="teams">${game.b}</span>
-            </div>
+        <div class="game-row">
+            <span class="platz">Platz 1:</span>
+            <span class="teams">${game.a}</span>
+            <span class="result"></span>
+        </div>
+
+        <div class="game-row">
+            <span class="platz">Platz 2:</span>
+            <span class="teams">${game.b}</span>
+            <span class="result"></span>
+        </div>
         `;
         container.appendChild(div);
     });
