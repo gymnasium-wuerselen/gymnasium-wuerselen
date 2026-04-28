@@ -199,7 +199,7 @@ onValue(ref(db, "spiele"), (snapshot) => {
 
 function updateLiveSpiel(nr) {
     console.log("LIVE NR:", nr);
-    console.log("SPIEL EXISTIERT?", spiele[nr]);
+    console.log("SPIEL EXISTIERT?", spiele[nr.toString()]);
     console.log("ALLE SPIELE:", spiele);
     
     const box = document.getElementById("liveText");
@@ -214,26 +214,39 @@ function updateLiveSpiel(nr) {
     container.style.display = "block";
 
     // 2. Inhalt setzen mit pulsierendem Punkt und Profi-Layout
-    if (spiele[nr]) {
-    box.innerHTML = `
-        <div style="font-size: 14px; font-weight: bold; margin-bottom: 2px; letter-spacing: 2px; display: flex; align-items: center; justify-content: center;">
-            <span class="live-indicator"></span> AKTUELLE SPIELE
-        </div>
-        <div style="font-size: 20px; font-weight: bold; line-height: 1.4;">
-            ${spiele[nr].a}<br>${spiele[nr].b}
-        </div>
-    `;
-    } else {
-        // Fallback-Text, falls für die Nummer kein Spiel im Objekt 'spiele' ist
+    const game = spiele[nr.toString()];
+
+    if (game) {
         box.innerHTML = `
-            <div style="font-size: 14px; font-weight: bold; margin-bottom: 8px; letter-spacing: 2px; display: flex; align-items: center; justify-content: center;">
+            <div style="font-size: 14px; font-weight: bold; margin-bottom: 2px; letter-spacing: 2px; display: flex; align-items: center; justify-content: center;">
                 <span class="live-indicator"></span> AKTUELLE SPIELE
             </div>
-            <div style="font-size: 20px; font-weight: bold;">
-                Aktuelles Spiel: Spiel ${nr}
+
+            <div style="font-size: 20px; font-weight: bold; line-height: 1.6;">
+                
+                <div class="game-row">
+                    <span class="platz">Platz 1:</span>
+                    <span class="teams">${game.a}</span>
+                </div>
+
+                <div class="game-row">
+                    <span class="platz">Platz 2:</span>
+                    <span class="teams">${game.b}</span>
+                </div>
+
             </div>
         `;
-    }
+    } else {
+            // Fallback-Text, falls für die Nummer kein Spiel im Objekt 'spiele' ist
+            box.innerHTML = `
+                <div style="font-size: 14px; font-weight: bold; margin-bottom: 8px; letter-spacing: 2px; display: flex; align-items: center; justify-content: center;">
+                    <span class="live-indicator"></span> AKTUELLE SPIELE
+                </div>
+                <div style="font-size: 20px; font-weight: bold;">
+                    Aktuelles Spiel: Spiel ${nr}
+                </div>
+            `;
+        }
 }
 
 function updateSideGames(current) {
@@ -280,13 +293,30 @@ function renderPast(past, current) {
         if (alleErgebnisse[nr]) {
             const res = alleErgebnisse[nr];
 
-            displayContent = `${game.a} <span class="game-res">${res.a}</span><br>
-                      ${game.b} <span class="game-res">${res.b}</span>`;
+            displayContent = `
+            <div class="game-row">
+                <span class="platz">Platz 1:</span>
+                <span class="teams">${game.a} <span class="game-res">${res.a}</span></span>
+            </div>
+            <div class="game-row">
+                <span class="platz">Platz 2:</span>
+                <span class="teams">${game.b} <span class="game-res">${res.b}</span></span>
+            </div>
+            `;
         } else {
-            displayContent = `${game.a}<br>${game.b}`;
+            displayContent = `
+            <div class="game-row">
+                <span class="platz">Platz 1:</span>
+                <span class="teams">${game.a}</span>
+            </div>
+            <div class="game-row">
+                <span class="platz">Platz 2:</span>
+                <span class="teams">${game.b}</span>
+            </div>
+            `;
         }
 
-        div.innerHTML = `Spiel ${nr}<br>${displayContent}`;
+        div.innerHTML = displayContent;
         container.appendChild(div);
     });
 
@@ -350,7 +380,16 @@ function renderFuture(future, current) {
         const div = document.createElement("div");
         div.className = "game-line";
         const game = spiele[nr];
-        div.innerHTML = `Spiel ${nr}<br>${game.a}<br>${game.b}`;
+        div.innerHTML = `
+            <div class="game-row">
+                <span class="platz">Platz 1:</span>
+                <span class="teams">${game.a}</span>
+            </div>
+            <div class="game-row">
+                <span class="platz">Platz 2:</span>
+                <span class="teams">${game.b}</span>
+            </div>
+        `;
         container.appendChild(div);
     });
 
