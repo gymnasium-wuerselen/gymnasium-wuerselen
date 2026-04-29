@@ -165,6 +165,7 @@ document.getElementById("resetResultsBtn").onclick = () => {
 function setSpiel(nr) {
     set(ref(db, "aktuellesSpiel"), nr);
     document.getElementById("adminPanel").style.display = "none";
+    document.getElementById("adminMenu").style.display = "none";
 }
 
 // --- FIREBASE & LISTENERS ---
@@ -463,6 +464,35 @@ function handleLiveResize() {
     const isSticky = live.getBoundingClientRect().top <= parseInt(live.style.top || 0) + 1;
     if (isSticky) live.classList.add("full-width");
     else live.classList.remove("full-width");
+}
+
+const deleteBtn = document.getElementById("deleteSingleResultBtn");
+
+if (deleteBtn) {
+    deleteBtn.onclick = deleteSingleResult;
+}
+
+function deleteSingleResult() {
+    const nr = prompt("Welche Spielnummer soll gelöscht werden?");
+
+    if (!nr) return;
+
+    const nummer = nr.trim();
+
+    if (!alleErgebnisse[nummer]) {
+        alert("Für dieses Spiel gibt es kein gespeichertes Ergebnis.");
+        return;
+    }
+
+    if (!confirm(`Ergebnis von Spiel ${nummer} wirklich löschen?`)) return;
+
+    // Ergebnis lokal löschen
+    delete alleErgebnisse[nummer];
+
+    // In Firebase löschen
+    set(ref(db, "ergebnisse/" + nummer), null);
+
+    alert("Ergebnis gelöscht.");
 }
 
 window.addEventListener("resize", setLiveOffset);
