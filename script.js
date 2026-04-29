@@ -222,7 +222,7 @@ if (game) {
             <span class="live-indicator"></span> AKTUELLE SPIELE
         </div>
 
-        <div style="font-size: 20px; font-weight: bold; line-height: 1.6;">
+        <div style="font-size: 18px; font-weight: bold; line-height: 1.6;">
             
             <div class="game-row">
                 <span class="platz">Platz 1:</span>

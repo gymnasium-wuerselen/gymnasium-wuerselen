@@ -491,6 +491,8 @@ h2.subtitle {
     color: white;
     cursor: pointer;
     transition: 0.2s;
+    font-weight: bold;
+    letter-spacing: 0.5px;
 }
 
 #liveTableBtn:hover {
