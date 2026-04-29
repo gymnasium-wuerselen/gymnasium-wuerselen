@@ -237,7 +237,18 @@ if (game) {
             </div>
 
         </div>
-    `;
+
+        <div class="live-button-container">
+            <button id="liveTableBtn">Zur Live-Tabelle</button>
+        </div>
+        `;
+
+     const btn = document.getElementById("liveTableBtn");
+        if (btn) {
+            btn.onclick = () => {
+                console.log("Zur Tabelle klicken (noch ohne Funktion)");
+            };
+        }
 } else {
             // Fallback-Text, falls für die Nummer kein Spiel im Objekt 'spiele' ist
             box.innerHTML = `
@@ -392,13 +403,11 @@ function renderFuture(future, current) {
         <div class="game-row">
             <span class="platz">Platz 1:</span>
             <span class="teams">${game.a}</span>
-            <span class="result"></span>
         </div>
 
         <div class="game-row">
             <span class="platz">Platz 2:</span>
             <span class="teams">${game.b}</span>
-            <span class="result"></span>
         </div>
         `;
         container.appendChild(div);

@@ -475,3 +475,24 @@ h2.subtitle {
     font-weight: bold;
     vertical-align: middle;
 }
+
+.live-button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+#liveTableBtn {
+    padding: 6px 12px;
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    background-color: #3414fc;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+#liveTableBtn:hover {
+    background-color: #2510b5;
+}
